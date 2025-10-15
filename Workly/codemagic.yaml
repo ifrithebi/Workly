@@ -7,7 +7,8 @@ workflows:
       xcode: latest
       cocoapods: default
       vars:
-        XCODE_SCHEME: "YourApp"
+        XCODE_WORKSPACE: "Workly.xcworkspace"
+        XCODE_SCHEME: "Workly"
     scripts:
       - name: Install CocoaPods dependencies
         script: |
@@ -22,7 +23,7 @@ workflows:
             CODE_SIGN_IDENTITY="Apple Distribution" \
             CODE_SIGNING_REQUIRED=YES \
             CODE_SIGNING_ALLOWED=YES \
-            PROVISIONING_PROFILE_SPECIFIER="YourProvisioningProfileName"
+            PROVISIONING_PROFILE_SPECIFIER="WorklyProvisioningProfile"
     artifacts:
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/Products/Release-iphoneos/*.ipa
     publishing:
