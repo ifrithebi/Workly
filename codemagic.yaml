@@ -1,20 +1,38 @@
 workflows:
-  flutter-release:
-    name: Flutter iOS + Android Build
-    max_build_duration: 60
+  ios-release:
+    name: iOS Release Workflow
+    max_build_duration: 120
+    instance_type: mac_mini_m2
     environment:
-      flutter: stable
       xcode: latest
+      cocoapods: default
+      vars:
+        XCODE_WORKSPACE: "Workly.xcworkspace"
+        XCODE_SCHEME: "Workly"
     scripts:
-      - flutter pub get
-      - flutter analyze
-      - flutter test
-      - flutter build apk --release
-      - flutter build ios --release --no-codesign
+      - name: Install CocoaPods dependencies
+        script: |
+          pod install
+      - name: Build the .ipa
+        script: |
+          xcodebuild clean build \
+            -workspace "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -sdk iphoneos \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            CODE_SIGNING_REQUIRED=YES \
+            CODE_SIGNING_ALLOWED=YES \
+            PROVISIONING_PROFILE_SPECIFIER="WorklyProvisioningProfile"
     artifacts:
-      - build/app/outputs/flutter-apk/*.apk
-      - build/ios/iphoneos/*.ipa
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/Products/Release-iphoneos/*.ipa
     publishing:
-      email:
-        recipients:
-          - you@example.com
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_ID
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
+        submit_to_app_store: true
+        release_type: SCHEDULED
+        earliest_release_date: "2025-10-17T10:00:00+00:00"
+        phased_release: true
